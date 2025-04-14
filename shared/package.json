@@ -1,0 +1,14 @@
+{
+  "name": "shadowpod-shared",
+  "version": "1.0.0",
+  "main": "lib/session.ts",
+  "types": "lib/session.ts",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "expo-secure-store": "^12.8.1",
+    "react-native": "^0.73.11"
+  },
+  "devDependencies": {
+    "@types/react-native": "^0.73.0"
+  }
+}
