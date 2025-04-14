@@ -3,9 +3,13 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   optimizeFonts: true,
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
-    optimizeCss: true,
+    optimizeCss: false,
   },
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
