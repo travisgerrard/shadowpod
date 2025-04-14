@@ -2,11 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
 export default function MobileCallbackPage() {
   const router = useRouter();
-  const supabase = createClientComponentClient();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -15,18 +13,17 @@ export default function MobileCallbackPage() {
       
       if (code) {
         try {
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
-          
-          if (error) {
-            console.error('Error exchanging code for session:', error);
-            router.push('/');
-            return;
-          }
+          const response = await fetch('/auth/(mobile-callback)', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
 
-          if (data?.session) {
+          if (response.ok) {
             router.push('/dashboard');
           } else {
-            console.error('No session data received');
+            console.error('Failed to handle mobile callback');
             router.push('/');
           }
         } catch (error) {
@@ -39,7 +36,7 @@ export default function MobileCallbackPage() {
     };
 
     handleCallback();
-  }, [router, supabase.auth]);
+  }, [router]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">
