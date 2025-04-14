@@ -1,12 +1,9 @@
 {
   "name": "shadowpod-shared",
   "version": "1.0.0",
-  "main": "lib/session.ts",
-  "types": "lib/session.ts",
-  "scripts": {
-    "build": "npx tsc",
-    "prepare": "npm run build"
-  },
+  "main": "lib/session.js",
+  "types": "lib/session.d.ts",
+  "scripts": {},
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
     "expo-secure-store": "^12.8.1",
