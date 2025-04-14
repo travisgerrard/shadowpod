@@ -13,7 +13,7 @@ export default function MobileCallbackPage() {
       
       if (code) {
         try {
-          const response = await fetch('/auth/(mobile-callback)', {
+          const response = await fetch('/api/auth/mobile-callback', {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
