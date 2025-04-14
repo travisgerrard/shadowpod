@@ -5,12 +5,20 @@ const nextConfig = {
   optimizeFonts: true,
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
+    optimizeCss: true,
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, './src'),
+      '@': require('path').resolve(__dirname, 'src'),
     };
+
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+    };
+
     return config;
   },
 };
