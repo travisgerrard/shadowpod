@@ -1,12 +1,12 @@
 {
-  "name": "ShadowPod+",
-  "short_name": "ShadowPod+",
-  "description": "Learn Japanese through personalized stories, shadowing, and speaking practice.",
+  "name": "ShadowPod",
+  "short_name": "ShadowPod",
+  "description": "Japanese language learning app using shadowing technique and AI content generation",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#4F46E5",
-  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#4A5568",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
@@ -57,6 +57,20 @@
       "purpose": "any maskable"
     }
   ],
+  "screenshots": [
+    {
+      "src": "/screenshots/screen1.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    },
+    {
+      "src": "/screenshots/screen2.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
   "splash_pages": null,
   "shortcuts": [
     {

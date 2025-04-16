@@ -39,8 +39,7 @@
     "react-native-url-polyfill": "^2.0.0",
     "shadowpod-shared": "file:../shared",
     "string-similarity": "^4.0.4",
-    "twrnc": "^3.6.4",
-    "whisper.rn": "^0.4.0-rc.11"
+    "twrnc": "^3.6.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
