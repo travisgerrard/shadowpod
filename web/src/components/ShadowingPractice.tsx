@@ -305,7 +305,7 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 my-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 my-4">
       {error && (
         <div className="text-red-500 mb-4">
           {error}
@@ -315,7 +315,7 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
       {/* Current segment display */}
       {currentSegment && (
         <div className="mb-6">
-          <div className="flex justify-between items-center mb-2">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-2">
             <div className="text-sm text-gray-500 dark:text-gray-400">
               Segment {currentSegmentIndex + 1} of {segments.length}
             </div>
@@ -337,13 +337,12 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
         {/* Voice selection */}
         <div className="flex items-center space-x-2">
           <select
-            className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-1"
             onChange={(e) => handleVoiceChange(e.target.value)}
             value={selectedVoice?.name || ''}
           >
             <option value="">Select a voice</option>
             {japaneseVoices.map((voice, index) => {
-              // Create a unique key using voice properties and index
               const voiceKey = `${voice.name}-${voice.lang}-${voice.voiceURI}-${index}`;
               return (
                 <option key={voiceKey} value={voice.name}>
@@ -355,17 +354,17 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
         </div>
 
         {/* Playback controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={handlePlayAudio}
             disabled={!selectedVoice || isPlaying}
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="flex-1 bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
           >
             {isPlaying ? 'Playing...' : 'Play'}
           </button>
           
           <select
-            className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            className="border rounded p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-1"
             value={playbackRate}
             onChange={(e) => handleSpeedChange(Number(e.target.value))}
           >
@@ -378,28 +377,28 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
         </div>
 
         {/* Navigation controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={handlePreviousSegment}
             disabled={currentSegmentIndex === 0}
-            className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="flex-1 bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
           >
             Previous
           </button>
           <button
             onClick={handleNextSegment}
             disabled={currentSegmentIndex === segments.length - 1}
-            className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
+            className="flex-1 bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
           >
             Next
           </button>
         </div>
 
         {/* Recording controls */}
-        <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={isRecording ? handleStopRecording : handleStartRecording}
-            className="bg-red-500 text-white px-4 py-2 rounded"
+            className="flex-1 bg-red-500 text-white px-4 py-2 rounded"
           >
             {isRecording ? 'Stop Recording' : 'Start Recording'}
           </button>

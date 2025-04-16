@@ -394,9 +394,9 @@ export default function Dashboard() {
 
   return (
     <main className="flex flex-col p-4 max-w-4xl mx-auto min-h-screen">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
         <h1 className="text-2xl font-bold">ShadowPod+</h1>
-        <div className="flex space-x-4 items-center">
+        <div className="flex flex-wrap gap-2 items-center">
           <Link href="/dashboard/past-lessons" className="text-blue-500 hover:text-blue-700">
             Past Lessons
           </Link>
@@ -413,8 +413,8 @@ export default function Dashboard() {
         </div>
       </div>
       
-      <div className="flex justify-between items-center mb-4">
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
+        <div className="flex flex-wrap border-b border-gray-200 dark:border-gray-700">
           <button
             className={`py-2 px-4 font-medium ${
               activeTab === 'story'

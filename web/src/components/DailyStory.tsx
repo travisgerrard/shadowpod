@@ -275,8 +275,8 @@ export default function DailyStory({ story }: DailyStoryProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 my-4">
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 my-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">
           {story.title.japanese}
           {showTranslation && (
@@ -307,7 +307,7 @@ export default function DailyStory({ story }: DailyStoryProps) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handlePlayAudio}
-            className={`flex items-center justify-center ${
+            className={`flex items-center justify-center flex-1 ${
               isPlaying ? 'bg-red-600 hover:bg-red-700' : 'bg-indigo-600 hover:bg-indigo-700'
             } text-white px-4 py-2 rounded-md`}
             disabled={!speechSynthesisIsAvailable}
@@ -325,7 +325,7 @@ export default function DailyStory({ story }: DailyStoryProps) {
                 </svg>
                 Stop Audio
               </>
-            ) : isPaused ? (
+            ) : isPlaying && isPaused ? (
               <>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -363,7 +363,7 @@ export default function DailyStory({ story }: DailyStoryProps) {
           {isPlaying && !isPaused && (
             <button
               onClick={handlePauseAudio}
-              className="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md"
+              className="flex items-center justify-center flex-1 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-md"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -381,12 +381,12 @@ export default function DailyStory({ story }: DailyStoryProps) {
         {/* Playback settings */}
         <div className="flex flex-wrap gap-4 items-center">
           {/* Speed control */}
-          <div className="flex items-center">
+          <div className="flex items-center flex-1">
             <label className="mr-2 text-sm text-gray-700 dark:text-gray-300">Speed:</label>
             <select
               value={playbackRate}
               onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-              className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm"
+              className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm flex-1"
             >
               <option value="0.7">Slow (0.7x)</option>
               <option value="0.9">Normal (0.9x)</option>
@@ -397,12 +397,12 @@ export default function DailyStory({ story }: DailyStoryProps) {
           
           {/* Voice selection */}
           {japaneseVoices.length > 0 && (
-            <div className="flex items-center">
+            <div className="flex items-center flex-1">
               <label className="mr-2 text-sm text-gray-700 dark:text-gray-300">Voice:</label>
               <select
                 value={selectedVoice?.name || ''}
                 onChange={(e) => handleVoiceChange(e.target.value)}
-                className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm"
+                className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm flex-1"
               >
                 {japaneseVoices.map((voice, index) => (
                   <option key={`${voice.name}-${index}`} value={voice.name}>

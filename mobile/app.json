@@ -16,18 +16,43 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.shadowpod.app"
+      "bundleIdentifier": "com.shadowpod.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app uses the microphone to record your voice for speaking practice.",
+        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition to evaluate your pronunciation."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.shadowpod.app"
+      "package": "com.shadowpod.app",
+      "versionCode": 1,
+      "permissions": [
+        "RECORD_AUDIO",
+        "INTERNET"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "scheme": "shadowpod"
+    "scheme": "shadowpod",
+    "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "13.0"
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
+    }
   }
 }

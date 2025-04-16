@@ -73,8 +73,8 @@ export default function SpeakingPrompts({ prompts }: SpeakingPromptsProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 my-4">
-      <div className="flex justify-between items-center mb-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 sm:p-6 my-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-2">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white">
           Speaking Prompt ({currentPromptIndex + 1}/{prompts.length})
         </h2>
@@ -119,7 +119,7 @@ export default function SpeakingPrompts({ prompts }: SpeakingPromptsProps) {
         </div>
       )}
 
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between gap-2">
         <button
           onClick={handlePreviousPrompt}
           disabled={currentPromptIndex === 0}

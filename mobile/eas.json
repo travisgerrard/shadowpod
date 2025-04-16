@@ -7,7 +7,9 @@
       "developmentClient": true,
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m-medium"
+        "simulator": false,
+        "resourceClass": "m-medium",
+        "image": "latest"
       },
       "android": {
         "buildType": "apk"
@@ -16,15 +18,14 @@
     "preview": {
       "distribution": "internal",
       "ios": {
-        "resourceClass": "m-medium"
-      },
-      "android": {
-        "buildType": "apk"
+        "simulator": false,
+        "image": "latest"
       }
     },
     "production": {
       "ios": {
-        "resourceClass": "m-medium"
+        "simulator": false,
+        "image": "latest"
       }
     }
   },
