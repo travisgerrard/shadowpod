@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node static-export.js",
-    "vercel-build": "node static-export.js",
+    "prebuild": "node fix-build.js",
+    "build": "next build",
+    "vercel-build": "npm run prebuild && next build",
     "start": "next start",
     "lint": "next lint",
     "copy-icons": "mkdir -p public/icons && cp ../mobile/assets/icon.png public/icons/icon-512x512.png",
-    "generate-icons": "node scripts/generate-icons.js"
+    "generate-icons": "node scripts/generate-icons.js",
+    "postinstall": "touch src/shared/.gitkeep"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.8.7",
