@@ -1,44 +1,44 @@
 #!/usr/bin/env node
 
 /**
- * This script prepares the web app for building by:
- * 1. Creating a clean src/shared directory with no mobile dependencies
- * 2. Creating minimal versions of shared files
- * 3. Cleaning up other problematic files that might cause stack overflow
+ * This script creates an isolated build environment with all needed types
+ * directly inside the web project, eliminating any need for dependency scanning
+ * outside the web directory.
  */
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-console.log('🔧 Preparing web app for Vercel build...');
+console.log('🔧 Creating isolated build environment...');
 
 try {
-  // Create clean node_modules/.cache directory to ensure fresh build
-  const cacheDir = path.join(__dirname, 'node_modules', '.cache');
-  if (fs.existsSync(cacheDir)) {
-    console.log('Cleaning build cache...');
-    execSync(`rm -rf ${cacheDir}`);
+  // Clean build cache
+  try {
+    execSync('rm -rf node_modules/.cache', { stdio: 'inherit' });
+    execSync('rm -rf .next', { stdio: 'inherit' });
+  } catch (e) {
+    console.log('Cache cleanup failed, but continuing...');
   }
   
-  // Create/clean shared directory
+  // Create shared directory if it doesn't exist
   const sharedDir = path.join(__dirname, 'src', 'shared');
-  if (!fs.existsSync(sharedDir)) {
-    fs.mkdirSync(sharedDir, { recursive: true });
-  } else {
-    // Remove all files in shared directory for a clean start
+  fs.mkdirSync(sharedDir, { recursive: true });
+  
+  // Remove any existing files
+  try {
     const files = fs.readdirSync(sharedDir);
     for (const file of files) {
       fs.unlinkSync(path.join(sharedDir, file));
-      console.log(`Removed ${file}`);
     }
+  } catch (e) {
+    console.log('No files to clean in shared directory');
   }
   
-  // Create minimal types.ts
-  console.log('Creating types.ts...');
+  // Write minimal types.ts
   fs.writeFileSync(
     path.join(sharedDir, 'types.ts'),
-    `// Essential shared types for web app
+    `// Essential types for web app
 export interface StoryContent {
   id?: string;
   date?: string;
@@ -113,15 +113,13 @@ export interface GrammarItem {
 }`
   );
   
-  // Create minimal session.ts
-  console.log('Creating session.ts...');
+  // Write minimal session.ts
   fs.writeFileSync(
     path.join(sharedDir, 'session.ts'),
-    `// Simple session management for web
+    `// Minimal session handling for web
 import { Session } from '@supabase/supabase-js';
 
 export const syncSession = async (session: Session | null): Promise<void> => {
-  // No-op implementation for web build
   console.log('Session sync called');
 };
 
@@ -130,28 +128,28 @@ export const getStoredSession = async (): Promise<Session | null> => {
 };`
   );
   
-  // Create index.ts
-  console.log('Creating index.ts...');
+  // Write index.ts
   fs.writeFileSync(
     path.join(sharedDir, 'index.ts'),
-    `// Shared exports
+    `// Exports
 export * from './types';
 export * from './session';`
   );
   
-  // Create a touch file to mark this build as clean
+  // Create a marker file to show we've done the setup
   fs.writeFileSync(
-    path.join(__dirname, '.clean-build'),
+    path.join(__dirname, '.isolated-build'),
     `Build prepared at ${new Date().toISOString()}`
   );
   
-  // Set an environment variable to help Next.js with its build
-  process.env.NODE_OPTIONS = '--max-old-space-size=4096';
+  // Set environment variables
   process.env.NEXT_TELEMETRY_DISABLED = '1';
+  process.env.NODE_OPTIONS = '--max-old-space-size=4096 --no-warnings';
+  process.env.NEXT_DISABLE_SOURCEMAPS = '1';
   
-  console.log('✅ Build preparation completed!');
+  console.log('✅ Build environment prepared successfully');
   
 } catch (error) {
-  console.error('❌ Error preparing build:', error);
+  console.error('❌ Error preparing build environment:', error);
   process.exit(1);
 } 

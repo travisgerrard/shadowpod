@@ -1,19 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  // Disable any experimental features
-  experimental: {},
-  // Skip dependency tracing for files matching these patterns
-  transpilePackages: [],
-  // Disable unnecessary optimizations
+  // Disable dependency collection entirely
+  experimental: {
+    // This setting completely disables dependency tracing
+    turbotrace: false,
+    // Opt out of Next.js' route handlers tracing
+    serverComponentsExternalPackages: []
+  },
+  // Set to production-only to avoid tracing in development
+  reactStrictMode: false,
+  // Disable other optimizations that might cause issues
   optimizeFonts: false,
-  // Simplify webpack config to prevent stack overflow
+  swcMinify: false,
+  // Simplest webpack config possible
   webpack: (config) => {
-    // Only essential rule to exclude mobile files
-    config.module.rules.push({
-      test: /\.native\.(js|ts|tsx)$/,
-      use: 'ignore-loader'
-    });
+    // Add external module resolution fallbacks
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false
+    };
     return config;
   }
 }

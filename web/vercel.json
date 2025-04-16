@@ -1,8 +1,9 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run vercel-build",
+  "buildCommand": "node fix-build.js && next build",
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1",
-    "NODE_OPTIONS": "--max-old-space-size=4096"
+    "NODE_OPTIONS": "--max-old-space-size=4096 --no-warnings",
+    "NEXT_DISABLE_SOURCEMAPS": "1"
   }
 } 
