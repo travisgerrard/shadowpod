@@ -97,6 +97,16 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
     isEnhancedVoice,
   } = useSpeechVoices();
 
+  // Set Kyoko as default voice when voices are loaded
+  useEffect(() => {
+    if (japaneseVoices.length > 0) {
+      const kyokoVoice = japaneseVoices.find(voice => voice.name === 'Kyoko');
+      if (kyokoVoice) {
+        handleVoiceChange(kyokoVoice.name);
+      }
+    }
+  }, [japaneseVoices]);
+
   // Check for speech synthesis availability
   useEffect(() => {
     if (!window.speechSynthesis) {
@@ -208,93 +218,55 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
       return text
         .toLowerCase()
         .trim()
-        // Keep basic punctuation but normalize it
-        .replace(/[、。]/g, '、') // Normalize punctuation to just 、
-        .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
-        // More lenient form variations
-        .replace(/ます(って|か)?/g, 'ます') // Keep polite form variations
-        .replace(/です(って|か)?/g, 'です') // Keep です variations
-        .replace(/[てで]います/g, 'ています') // Keep continuous form
-        .replace(/[てで]いる/g, 'ている') // Keep continuous form (plain)
+        // Remove all punctuation
+        .replace(/[、。,.!?！？]/g, '')
+        // Remove all spaces
+        .replace(/\s+/g, '')
+        // Normalize common variations
+        .replace(/ます(って|か|よ|ね)?/g, 'ます')
+        .replace(/です(って|か|よ|ね)?/g, 'です')
+        .replace(/[てで](い|き|し|み|り)(ます|る)/g, 'ています')
+        .replace(/[てで](い|き|し|み|り)(た)/g, 'てた')
+        // Normalize particles
+        .replace(/は/g, 'わ')
+        .replace(/へ/g, 'え')
+        .replace(/を/g, 'お')
         // More precise ん sound handling
-        .replace(/[ンン]/g, 'ん') // Only normalize katakana ン
+        .replace(/[ンん]/g, 'ん')
         .trim();
     };
 
-    const calculateCharacterSimilarity = (text1: string, text2: string) => {
+    const calculateSimilarity = (text1: string, text2: string) => {
       const chars1 = Array.from(text1);
       const chars2 = Array.from(text2);
       
-      // Define similar character groups
-      const similarGroups = [
-        ['は', 'が', 'わ'], // Particles
-        ['に', 'へ'], // Direction particles
-        ['を', 'お'], // Object particle
-        ['で', 'て'], // Te-form
-        ['だ', 'です'], // Copula
-        ['ます', 'ました'], // Polite form
-      ];
-      
       let matches = 0;
-      const maxLength = Math.max(chars1.length, chars2.length);
+      let totalChars = Math.max(chars1.length, chars2.length);
       
-      for (let i = 0; i < maxLength; i++) {
-        const char1 = chars1[i];
-        const char2 = chars2[i];
-        
-        if (char1 === char2) {
-          matches++;
-        } else if (char1 && char2) {
-          // Check if characters are in the same similar group
-          const isSimilar = similarGroups.some(group => 
-            group.includes(char1) && group.includes(char2)
-          );
-          if (isSimilar) matches += 0.8; // Partial match for similar characters
+      // Use dynamic programming to find longest common subsequence
+      const lcs = Array(chars1.length + 1).fill(0).map(() => Array(chars2.length + 1).fill(0));
+      
+      for (let i = 1; i <= chars1.length; i++) {
+        for (let j = 1; j <= chars2.length; j++) {
+          if (chars1[i - 1] === chars2[j - 1]) {
+            lcs[i][j] = lcs[i - 1][j - 1] + 1;
+          } else {
+            lcs[i][j] = Math.max(lcs[i - 1][j], lcs[i][j - 1]);
+          }
         }
       }
       
-      return matches / maxLength;
-    };
-
-    const calculateSimilarity = (text1: string, text2: string) => {
-      // Split into words for more accurate comparison
-      const words1 = text1.split(/[\s、]+/).filter(Boolean);
-      const words2 = text2.split(/[\s、]+/).filter(Boolean);
-      
-      // Calculate word-level similarity
-      const wordMatches = words1.filter(word1 => 
-        words2.some(word2 => {
-          // Consider words similar if they share most characters
-          const sharedChars = Array.from(word1).filter(char => word2.includes(char)).length;
-          return sharedChars / Math.max(word1.length, word2.length) > 0.7;
-        })
-      );
-      
-      // Calculate character-level similarity for unmatched words
-      const unmatched1 = words1.filter(word1 => 
-        !words2.some(word2 => word1 === word2)
-      );
-      const unmatched2 = words2.filter(word2 => 
-        !words1.some(word1 => word1 === word2)
-      );
-      
-      const charSimilarity = unmatched1.length === 0 && unmatched2.length === 0 ? 1 : 
-        calculateCharacterSimilarity(unmatched1.join(''), unmatched2.join(''));
-      
-      // Weight word matches more heavily than character matches
-      const wordScore = wordMatches.length / Math.max(words1.length, words2.length);
-      const finalScore = (wordScore * 0.7) + (charSimilarity * 0.3);
-      
-      return finalScore;
+      matches = lcs[chars1.length][chars2.length];
+      return matches / totalChars;
     };
 
     const calculateAccuracy = (similarity: number) => {
-      // More generous scoring scale
-      if (similarity >= 0.95) return 100; // Near perfect
-      if (similarity >= 0.85) return Math.round(90 + (similarity - 0.85) * 100); // Very good
-      if (similarity >= 0.70) return Math.round(70 + (similarity - 0.70) * 133); // Good
-      if (similarity >= 0.50) return Math.round(50 + (similarity - 0.50) * 100); // Fair
-      return Math.round(similarity * 100); // Below fair
+      // More lenient scoring scale
+      if (similarity >= 0.9) return 100; // Near perfect
+      if (similarity >= 0.8) return Math.round(90 + (similarity - 0.8) * 100); // Very good
+      if (similarity >= 0.6) return Math.round(70 + (similarity - 0.6) * 100); // Good
+      if (similarity >= 0.4) return Math.round(50 + (similarity - 0.4) * 100); // Fair
+      return Math.max(10, Math.round(similarity * 100)); // Minimum 10% for effort
     };
 
     const normalizedUserInput = normalizeText(transcript);
@@ -306,7 +278,7 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
       return;
     }
     
-    // Calculate similarity using the new methods
+    // Calculate similarity and accuracy
     const similarity = calculateSimilarity(normalizedUserInput, normalizedExpected);
     const accuracy = calculateAccuracy(similarity);
     
