@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' next build",
-    "vercel-build": "NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' next build",
+    "vercel-build": "NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS='--max-old-space-size=4096' node standalone.js",
+    "standalone": "node standalone.js",
     "start": "next start",
     "lint": "next lint",
     "copy-icons": "mkdir -p public/icons && cp ../mobile/assets/icon.png public/icons/icon-512x512.png",
