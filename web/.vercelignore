@@ -1,9 +1,31 @@
-README.md
-.git
+# Ignore node modules and build artifacts
 node_modules
 .next
+out
+
+# Ignore shared mobile module directories 
+../shared
+../mobile
+**/node_modules
+
+# Ignore version control and environment files
+.git
 .env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*.local
+
+# Ignore specific file types that might cause issues
+**/*.native.js
+**/*.native.ts
+**/*.native.tsx
+
+# Ignore test files
+**/*.test.js
+**/*.spec.js
+**/*.test.ts
+**/*.spec.ts
+
+# Ignore documentation and misc files
+README.md
+LICENSE
+*.md
 .DS_Store 

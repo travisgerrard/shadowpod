@@ -1,16 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Remove all experimental features causing issues
+  // Disable any experimental features
   experimental: {},
-  // Simplify the webpack config
+  // Skip dependency tracing for files matching these patterns
+  transpilePackages: [],
+  // Disable unnecessary optimizations
+  optimizeFonts: false,
+  // Simplify webpack config to prevent stack overflow
   webpack: (config) => {
-    // Force exclusion of mobile-only code files
+    // Only essential rule to exclude mobile files
     config.module.rules.push({
       test: /\.native\.(js|ts|tsx)$/,
       use: 'ignore-loader'
     });
-    
     return config;
   }
 }

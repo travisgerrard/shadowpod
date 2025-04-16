@@ -4,24 +4,31 @@
  * This script prepares the web app for building by:
  * 1. Creating a clean src/shared directory with no mobile dependencies
  * 2. Creating minimal versions of shared files
+ * 3. Cleaning up other problematic files that might cause stack overflow
  */
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 console.log('🔧 Preparing web app for Vercel build...');
 
 try {
-  // Create/clean directory
+  // Create clean node_modules/.cache directory to ensure fresh build
+  const cacheDir = path.join(__dirname, 'node_modules', '.cache');
+  if (fs.existsSync(cacheDir)) {
+    console.log('Cleaning build cache...');
+    execSync(`rm -rf ${cacheDir}`);
+  }
+  
+  // Create/clean shared directory
   const sharedDir = path.join(__dirname, 'src', 'shared');
   if (!fs.existsSync(sharedDir)) {
     fs.mkdirSync(sharedDir, { recursive: true });
-  }
-  
-  // Check for any .native files and remove them
-  const files = fs.readdirSync(sharedDir);
-  for (const file of files) {
-    if (file.includes('.native.')) {
+  } else {
+    // Remove all files in shared directory for a clean start
+    const files = fs.readdirSync(sharedDir);
+    for (const file of files) {
       fs.unlinkSync(path.join(sharedDir, file));
       console.log(`Removed ${file}`);
     }
@@ -131,6 +138,16 @@ export const getStoredSession = async (): Promise<Session | null> => {
 export * from './types';
 export * from './session';`
   );
+  
+  // Create a touch file to mark this build as clean
+  fs.writeFileSync(
+    path.join(__dirname, '.clean-build'),
+    `Build prepared at ${new Date().toISOString()}`
+  );
+  
+  // Set an environment variable to help Next.js with its build
+  process.env.NODE_OPTIONS = '--max-old-space-size=4096';
+  process.env.NEXT_TELEMETRY_DISABLED = '1';
   
   console.log('✅ Build preparation completed!');
   
