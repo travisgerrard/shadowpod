@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { syncSession } from 'shadowpod-shared/lib/session';
+import { syncSession } from '../shared/session';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
