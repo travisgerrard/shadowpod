@@ -1,11 +1,18 @@
-/** @type {import('next').NextConfig} */
-const withPWA = require('next-pwa')({
+import withPWA from 'next-pwa';
+
+// Import path module
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const pwaConfig = withPWA({
   dest: 'public',
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === 'development',
 });
 
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
@@ -14,14 +21,14 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
+    // Disable optimizations to avoid build issues
     optimizePackageImports: [],
     optimizeCss: false,
   },
-  transpilePackages: [],
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      '@': require('path').resolve(__dirname, 'src'),
+      '@': path.resolve(__dirname, 'src'),
     };
 
     config.resolve.fallback = {
@@ -30,6 +37,7 @@ const nextConfig = {
       path: false,
     };
     
+    // Ignore .native files completely
     config.module.rules.push({
       test: /\.native\.(js|ts|tsx)$/,
       use: 'ignore-loader'
@@ -37,7 +45,7 @@ const nextConfig = {
 
     return config;
   },
-  // Add header for service worker and PWA
+  // Add headers for PWA
   async headers() {
     return [
       {
@@ -68,6 +76,6 @@ const nextConfig = {
       },
     ];
   },
-}
+};
 
-module.exports = withPWA(nextConfig);
+export default pwaConfig(nextConfig); 
