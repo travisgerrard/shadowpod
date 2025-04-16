@@ -1,50 +1,6 @@
 {
-  "version": 2,
-  "buildCommand": "npm run vercel-build",
-  "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": "out",
-  "headers": [
-    {
-      "source": "/service-worker.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        },
-        {
-          "key": "Service-Worker-Allowed",
-          "value": "/"
-        }
-      ]
-    },
-    {
-      "source": "/sw.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        },
-        {
-          "key": "Service-Worker-Allowed",
-          "value": "/"
-        }
-      ]
-    },
-    {
-      "source": "/manifest.json",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/manifest+json"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    }
-  ],
+  "buildCommand": "npm run vercel-build",
   "env": {
     "NEXT_TELEMETRY_DISABLED": "1",
     "NODE_OPTIONS": "--max-old-space-size=4096"
