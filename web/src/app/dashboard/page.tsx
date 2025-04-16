@@ -52,13 +52,13 @@ export default function Dashboard() {
           return;
         }
         
-        // Check if token is going to expire in the next hour (3600 seconds)
+        // Check if token is going to expire in the next 24 hours (86400 seconds)
         const expiresAt = session.expires_at;
         const now = Math.floor(Date.now() / 1000);
-        const oneHourFromNow = now + 3600;
+        const oneDayFromNow = now + 86400;
         
-        // If token expires in less than an hour, refresh it proactively
-        if (expiresAt && expiresAt < oneHourFromNow) {
+        // If token expires in less than 24 hours, refresh it proactively
+        if (expiresAt && expiresAt < oneDayFromNow) {
           console.log('Token will expire soon, refreshing proactively');
           // Refresh token to ensure it's valid
           const { data: refreshData, error: refreshError } = await supabase.auth.refreshSession();
@@ -90,8 +90,8 @@ export default function Dashboard() {
     
     checkAuth();
     
-    // Set up a periodic refresh check every 30 minutes to keep the session alive
-    const refreshInterval = setInterval(checkAuth, 30 * 60 * 1000);
+    // Set up a periodic refresh check every 12 hours to keep the session alive
+    const refreshInterval = setInterval(checkAuth, 12 * 60 * 60 * 1000);
     
     return () => {
       clearInterval(refreshInterval);

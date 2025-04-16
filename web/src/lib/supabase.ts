@@ -38,7 +38,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         }
       },
     },
-  }
+  },
+  global: {
+    headers: {
+      'Cache-Control': 'no-cache',
+    },
+  },
 });
 
 export default supabase; 
