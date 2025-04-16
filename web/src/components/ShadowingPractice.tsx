@@ -204,85 +204,113 @@ export default function ShadowingPractice({ segments }: ShadowingPracticeProps) 
   const handleCompare = () => {
     if (!transcript || !currentSegment) return;
     
-    // Clean up transcript and expected text
-    const userInput = transcript.trim().toLowerCase()
-      .replace(/[()（）]/g, '') // Remove parentheses
-      .replace(/[、。]/g, '') // Remove Japanese punctuation
-      .replace(/\s+/g, '') // Remove all spaces
-      .replace(/ます(って|か)?/g, 'ます') // Normalize polite form variations
-      .replace(/です(って|か)?/g, 'です') // Normalize です variations
-      .replace(/[てで]います/g, 'ます') // Normalize continuous form
-      .replace(/[てで]いる/g, 'る') // Normalize continuous form (plain)
-      .replace(/[のんン]/g, 'ん') // Normalize ん sounds
-      .trim();
-    
-    const expected = currentSegment.japanese.trim().toLowerCase()
-      .replace(/[、。]/g, '') // Remove Japanese punctuation
-      .replace(/\s+/g, '') // Remove all spaces
-      .replace(/ます(って|か)?/g, 'ます') // Normalize polite form variations
-      .replace(/です(って|か)?/g, 'です') // Normalize です variations
-      .replace(/[てで]います/g, 'ます') // Normalize continuous form
-      .replace(/[てで]いる/g, 'る') // Normalize continuous form (plain)
-      .replace(/[のんン]/g, 'ん') // Normalize ん sounds
-      .trim();
+    const normalizeText = (text: string) => {
+      return text
+        .toLowerCase()
+        .trim()
+        // Keep basic punctuation but normalize it
+        .replace(/[、。]/g, '、') // Normalize punctuation to just 、
+        .replace(/\s+/g, ' ') // Normalize multiple spaces to single space
+        // More lenient form variations
+        .replace(/ます(って|か)?/g, 'ます') // Keep polite form variations
+        .replace(/です(って|か)?/g, 'です') // Keep です variations
+        .replace(/[てで]います/g, 'ています') // Keep continuous form
+        .replace(/[てで]いる/g, 'ている') // Keep continuous form (plain)
+        // More precise ん sound handling
+        .replace(/[ンン]/g, 'ん') // Only normalize katakana ン
+        .trim();
+    };
 
+    const calculateCharacterSimilarity = (text1: string, text2: string) => {
+      const chars1 = Array.from(text1);
+      const chars2 = Array.from(text2);
+      
+      // Define similar character groups
+      const similarGroups = [
+        ['は', 'が', 'わ'], // Particles
+        ['に', 'へ'], // Direction particles
+        ['を', 'お'], // Object particle
+        ['で', 'て'], // Te-form
+        ['だ', 'です'], // Copula
+        ['ます', 'ました'], // Polite form
+      ];
+      
+      let matches = 0;
+      const maxLength = Math.max(chars1.length, chars2.length);
+      
+      for (let i = 0; i < maxLength; i++) {
+        const char1 = chars1[i];
+        const char2 = chars2[i];
+        
+        if (char1 === char2) {
+          matches++;
+        } else if (char1 && char2) {
+          // Check if characters are in the same similar group
+          const isSimilar = similarGroups.some(group => 
+            group.includes(char1) && group.includes(char2)
+          );
+          if (isSimilar) matches += 0.8; // Partial match for similar characters
+        }
+      }
+      
+      return matches / maxLength;
+    };
+
+    const calculateSimilarity = (text1: string, text2: string) => {
+      // Split into words for more accurate comparison
+      const words1 = text1.split(/[\s、]+/).filter(Boolean);
+      const words2 = text2.split(/[\s、]+/).filter(Boolean);
+      
+      // Calculate word-level similarity
+      const wordMatches = words1.filter(word1 => 
+        words2.some(word2 => {
+          // Consider words similar if they share most characters
+          const sharedChars = Array.from(word1).filter(char => word2.includes(char)).length;
+          return sharedChars / Math.max(word1.length, word2.length) > 0.7;
+        })
+      );
+      
+      // Calculate character-level similarity for unmatched words
+      const unmatched1 = words1.filter(word1 => 
+        !words2.some(word2 => word1 === word2)
+      );
+      const unmatched2 = words2.filter(word2 => 
+        !words1.some(word1 => word1 === word2)
+      );
+      
+      const charSimilarity = unmatched1.length === 0 && unmatched2.length === 0 ? 1 : 
+        calculateCharacterSimilarity(unmatched1.join(''), unmatched2.join(''));
+      
+      // Weight word matches more heavily than character matches
+      const wordScore = wordMatches.length / Math.max(words1.length, words2.length);
+      const finalScore = (wordScore * 0.7) + (charSimilarity * 0.3);
+      
+      return finalScore;
+    };
+
+    const calculateAccuracy = (similarity: number) => {
+      // More generous scoring scale
+      if (similarity >= 0.95) return 100; // Near perfect
+      if (similarity >= 0.85) return Math.round(90 + (similarity - 0.85) * 100); // Very good
+      if (similarity >= 0.70) return Math.round(70 + (similarity - 0.70) * 133); // Good
+      if (similarity >= 0.50) return Math.round(50 + (similarity - 0.50) * 100); // Fair
+      return Math.round(similarity * 100); // Below fair
+    };
+
+    const normalizedUserInput = normalizeText(transcript);
+    const normalizedExpected = normalizeText(currentSegment.japanese);
+    
     // If exact match after normalization, return 100%
-    if (userInput === expected) {
+    if (normalizedUserInput === normalizedExpected) {
       setAccuracy(100);
       return;
     }
-
-    // Split into characters for comparison
-    const userChars = Array.from(userInput);
-    const expectedChars = Array.from(expected);
-
-    // Calculate Levenshtein distance with weighted substitutions
-    const matrix = Array(userChars.length + 1).fill(null)
-      .map(() => Array(expectedChars.length + 1).fill(0));
-
-    // Initialize first row and column
-    for (let i = 0; i <= userChars.length; i++) matrix[i][0] = i;
-    for (let j = 0; j <= expectedChars.length; j++) matrix[0][j] = j;
-
-    // Fill in the rest of the matrix
-    for (let i = 1; i <= userChars.length; i++) {
-      for (let j = 1; j <= expectedChars.length; j++) {
-        if (userChars[i - 1] === expectedChars[j - 1]) {
-          matrix[i][j] = matrix[i - 1][j - 1];
-        } else {
-          // Check for similar characters (like は/が particles)
-          const substitutionCost = 
-            (userChars[i - 1] === 'は' && expectedChars[j - 1] === 'が') ||
-            (userChars[i - 1] === 'が' && expectedChars[j - 1] === 'は') ||
-            (userChars[i - 1] === 'に' && expectedChars[j - 1] === 'へ') ||
-            (userChars[i - 1] === 'へ' && expectedChars[j - 1] === 'に')
-              ? 0.5 // Lower cost for similar particles
-              : 1;
-
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + substitutionCost, // substitution
-            matrix[i][j - 1] + 1,     // insertion
-            matrix[i - 1][j] + 1      // deletion
-          );
-        }
-      }
-    }
-
-    // Calculate similarity percentage with more lenient scoring
-    const maxLength = Math.max(userChars.length, expectedChars.length);
-    const distance = matrix[userChars.length][expectedChars.length];
-    const similarity = Math.max(0, Math.round((1 - distance / maxLength) * 100));
-
-    // Apply a more forgiving scale
-    // Scale up scores above 50% to be more encouraging
-    let adjustedAccuracy;
-    if (similarity > 50) {
-      adjustedAccuracy = Math.min(100, Math.round(50 + (similarity - 50) * 1.5));
-    } else {
-      adjustedAccuracy = Math.min(100, Math.round(similarity * 1.2));
-    }
     
-    setAccuracy(adjustedAccuracy);
+    // Calculate similarity using the new methods
+    const similarity = calculateSimilarity(normalizedUserInput, normalizedExpected);
+    const accuracy = calculateAccuracy(similarity);
+    
+    setAccuracy(accuracy);
   };
 
   // Handle next/previous segment
