@@ -6,12 +6,14 @@
     "dev": "next dev",
     "build": "cd ../shared && npm install && cd ../web && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "copy-icons": "mkdir -p public/icons && cp ../mobile/assets/icon.png public/icons/icon-512x512.png"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.8.7",
     "@supabase/supabase-js": "^2.49.4",
     "next": "14.0.4",
+    "next-pwa": "^5.6.0",
     "react": "^18",
     "react-dom": "^18",
     "shadowpod-shared": "file:../shared"
